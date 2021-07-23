@@ -5,7 +5,7 @@ export default {
     rollupOptions: {
       external: ['phaser'],
       output: {
-        // format: 'iife',
+        format: 'iife',
         globals: {
           phaser: 'Phaser',
         },
