@@ -3,17 +3,80 @@ import EventKeys from '~/consts/EventKeys'
 import SceneKeys from '~/consts/SceneKeys'
 import TextureKeys from '~/consts/TextureKeys'
 
-enum MouseState {
+export enum MouseState {
   Running,
   Killed,
   Dead,
 }
 
 export default class RocketMouse extends Phaser.GameObjects.Container {
-  private mouseState = MouseState.Running
+  mouseState = MouseState.Running
   private flames: Phaser.GameObjects.Sprite
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys
   private mouse: Phaser.GameObjects.Sprite
+
+  private createAnimations() {
+    this.mouse.anims.create({
+      key: AnimationKeys.RocketMouseRun,
+      frames: this.mouse.anims.generateFrameNames(TextureKeys.RocketMouse, {
+        start: 1,
+        end: 4,
+        prefix: 'rocketmouse_run',
+        zeroPad: 2,
+        suffix: '.png',
+      }),
+      frameRate: 10,
+      repeat: -1, // -1 to loop forever
+    })
+
+    // create the flames animation
+    this.mouse.anims.create({
+      key: AnimationKeys.RocketFlamesOn,
+      frames: this.mouse.anims.generateFrameNames(TextureKeys.RocketMouse, {
+        start: 1,
+        end: 2,
+        prefix: 'flame',
+        suffix: '.png',
+      }),
+      frameRate: 10,
+      repeat: -1,
+    })
+
+    // fall animation
+    this.mouse.anims.create({
+      key: AnimationKeys.RocketMouseFall,
+      frames: [
+        {
+          key: TextureKeys.RocketMouse,
+          frame: 'rocketmouse_fall01.png',
+        },
+      ],
+    })
+
+    // fly animation:;
+    this.mouse.anims.create({
+      key: AnimationKeys.RocketMouseFly,
+      frames: [
+        {
+          key: TextureKeys.RocketMouse,
+          frame: 'rocketmouse_fly01.png',
+        },
+      ],
+    })
+
+    // dead animation
+    this.mouse.anims.create({
+      key: AnimationKeys.RocketMouseDead,
+      frames: this.mouse.anims.generateFrameNames(TextureKeys.RocketMouse, {
+        start: 1,
+        end: 2,
+        prefix: 'rocketmouse_dead',
+        zeroPad: 2,
+        suffix: '.png',
+      }),
+      frameRate: 10,
+    })
+  }
 
   private enableJetpack(enabled: boolean) {
     this.flames.setVisible(enabled)
@@ -36,14 +99,13 @@ export default class RocketMouse extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y)
-    this.mouse = scene.add
-      .sprite(0, 0, TextureKeys.RocketMouse)
-      .setOrigin(0.5, 1)
-      .play(AnimationKeys.RocketMouseRun)
 
-    this.flames = scene.add
-      .sprite(-63, -15, TextureKeys.RocketMouse)
-      .play(AnimationKeys.RocketFlamesOn)
+    this.mouse = scene.add.sprite(0, 0, TextureKeys.RocketMouse).setOrigin(0.5, 1)
+    this.flames = scene.add.sprite(-63, -15, TextureKeys.RocketMouse)
+
+    this.createAnimations()
+
+    this.mouse.play(AnimationKeys.RocketMouseRun)
 
     this.enableJetpack(false)
 
@@ -54,8 +116,8 @@ export default class RocketMouse extends Phaser.GameObjects.Container {
     scene.physics.add.existing(this)
 
     const body = this.body as Phaser.Physics.Arcade.Body
-    body.setSize(this.mouse.width, this.mouse.height)
-    body.setOffset(this.mouse.width * -0.5, -this.mouse.height)
+    body.setSize(this.mouse.width * 0.5, this.mouse.height * 0.7)
+    body.setOffset(this.mouse.width * -0.3, -this.mouse.height + 15)
 
     this.cursors = scene.input.keyboard.createCursorKeys()
   }
@@ -66,7 +128,7 @@ export default class RocketMouse extends Phaser.GameObjects.Container {
     switch (this.mouseState) {
       // move all previous code into this case
       case MouseState.Running: {
-        if (this.cursors.space?.isDown) {
+        if (this.cursors.space?.isDown || this.scene.input.activePointer?.isDown) {
           body.setAccelerationY(-600)
           this.enableJetpack(true)
           this.mouse.play(AnimationKeys.RocketMouseFly, true)
@@ -96,6 +158,9 @@ export default class RocketMouse extends Phaser.GameObjects.Container {
       }
       case MouseState.Dead: {
         // make a complete stop
+        if (this.scene.scene.isActive(SceneKeys.GameOver)) {
+          break
+        }
         body.setVelocity(0, 0)
         this.scene.game.events.emit(EventKeys.Dead)
         break

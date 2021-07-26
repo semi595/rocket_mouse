@@ -12,7 +12,7 @@ export default class GameOver extends Phaser.Scene {
     const [x, y] = [width * 0.5, height * 0.5]
 
     this.add
-      .text(x, y, '按空格键重新挑战', {
+      .text(x, y, '重新挑战', {
         fontSize: '32px',
         color: '#ffffff',
         backgroundColor: '#000000',
@@ -22,6 +22,10 @@ export default class GameOver extends Phaser.Scene {
       .setOrigin(0.5)
 
     this.input.keyboard.once('keydown-SPACE', () => {
+      this.game.events.emit(EventKeys.Restart)
+    })
+
+    this.input.once('pointerdown', () => {
       this.game.events.emit(EventKeys.Restart)
     })
   }
