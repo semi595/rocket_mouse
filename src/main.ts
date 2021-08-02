@@ -7,7 +7,6 @@ import GameOver from './scenes/GameOver'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -19,7 +18,7 @@ const config: Phaser.Types.Core.GameConfig = {
     default: 'arcade',
     arcade: {
       gravity: { y: 200 },
-      debug: true,
+      // debug: true,
     },
   },
   scene: [Preloader, Game, GameOver],

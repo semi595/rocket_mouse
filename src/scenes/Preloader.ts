@@ -30,6 +30,13 @@ export default class Preloader extends Phaser.Scene {
     this.load.image(TextureKeys.LaserMiddle, 'house/object_laser.png')
 
     this.load.image(TextureKeys.Coin, 'house/object_coin.png')
+
+    // this.load.audio('hit', 'audio/hit.wav')
+    this.load.audio('die', ['audio/die.ogg', 'audio/die.mp3'])
+    this.load.audio('point', ['audio/point.ogg', 'audio/point.mp3'])
+    // this.load.audio('wing', 'audio/wing.wav')
+    // this.load.audio('btn_click', 'audio/buttonClick.wav')
+    // this.load.audio('swooshing', 'audio/sfx_swooshing.wav')
   }
 
   create() {
@@ -39,7 +46,7 @@ export default class Preloader extends Phaser.Scene {
 
   private initListeners() {
     this.game.events.on(EventKeys.Restart, () => {
-      this.scene.sleep(SceneKeys.GameOver)
+      this.scene.stop(SceneKeys.GameOver)
       this.scene.get(SceneKeys.Game)?.scene.restart()
     })
 

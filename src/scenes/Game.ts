@@ -20,6 +20,9 @@ export default class Game extends Phaser.Scene {
   private scoreLabel!: Phaser.GameObjects.Text
   private score = 0
 
+  private pointSound!: Phaser.Sound.BaseSound
+  private dieSound!: Phaser.Sound.BaseSound
+
   constructor() {
     super(SceneKeys.Game)
   }
@@ -194,6 +197,7 @@ export default class Game extends Phaser.Scene {
     // const laser = obj1 as LaserObstacle
     const mouse = obj2 as RocketMouse
     mouse.kill()
+    this.dieSound.play()
   }
 
   private handleCollectCoin(
@@ -205,12 +209,17 @@ export default class Game extends Phaser.Scene {
     coin.body.enable = false
     this.score += 1
     this.scoreLabel.text = `得分: ${this.score}`
+
+    this.pointSound.play()
   }
 
   create() {
     // width and height
     const width = this.scale.width
     const height = this.scale.height
+
+    this.pointSound = this.sound.add('point')
+    this.dieSound = this.sound.add('die')
 
     this.background = this.add
       .tileSprite(0, 0, width, height, TextureKeys.Background)
@@ -249,7 +258,8 @@ export default class Game extends Phaser.Scene {
     body.setCollideWorldBounds(true)
     body.setVelocityX(200)
 
-    this.cameras.main.startFollow(this.mouse)
+    this.cameras.main.startFollow(this.mouse, true)
+
     this.cameras.main.setBounds(0, 0, Number.MAX_SAFE_INTEGER, height)
 
     this.physics.add.overlap(

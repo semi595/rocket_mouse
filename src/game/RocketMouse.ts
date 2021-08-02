@@ -90,6 +90,7 @@ export default class RocketMouse extends Phaser.GameObjects.Container {
     this.mouseState = MouseState.Killed
 
     this.mouse.play(AnimationKeys.RocketMouseDead)
+    this.scene.cameras.main.shake(500)
 
     const body = this.body as Phaser.Physics.Arcade.Body
     body.setAccelerationY(0)
